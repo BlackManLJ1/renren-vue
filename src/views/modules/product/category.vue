@@ -1,10 +1,9 @@
 <template>
   <el-tree
-  :data="data"
+  :data="menus"
   :props="defaultProps"
-  accordion
-  @node-click="handleNodeClick">
-</el-tree>
+  @node-click="handleNodeClick"
+  ></el-tree>
 </template>
 
 <script>
@@ -19,10 +18,10 @@ export default {
   data () {
 // 这里存放数据
     return {
-      data: [],
+      menus: [],
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'name'
       }
     }
   },
@@ -39,8 +38,8 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/product/category/list/tree'),
         method: 'get'
-      }).then(data => {
-        console.log(data)
+      }).then(({data}) => {
+        this.menus = data.data
       })
     }
 
