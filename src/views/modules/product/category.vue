@@ -1,5 +1,10 @@
 <template>
-<div>hello</div>
+  <el-tree
+  :data="data"
+  :props="defaultProps"
+  accordion
+  @node-click="handleNodeClick">
+</el-tree>
 </template>
 
 <script>
@@ -8,12 +13,17 @@
 
 export default {
 // import 引入的组件需要注入到对象中才能使用
+  name: 'category',
   components: {},
   props: {},
   data () {
 // 这里存放数据
     return {
-
+      data: [],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      }
     }
   },
 // 计算属性 类似于data概念
@@ -22,11 +32,22 @@ export default {
   watch: {},
 // 方法集合
   methods: {
+    handleNodeClick (data) {
+      console.log(data)
+    },
+    getMenus () {
+      this.$http({
+        url: this.$http.adornUrl('/product/category/list/tree'),
+        method: 'get'
+      }).then(data => {
+        console.log(data)
+      })
+    }
 
   },
 // 生命周期 - 创建完成(可以访问当前 this 实例)
   created () {
-
+    this.getMenus()
   },
 // 生命周期 - 挂载完成(可以访问 DOM 元素)
   mounted () {
