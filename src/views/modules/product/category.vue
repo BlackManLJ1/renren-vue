@@ -3,6 +3,9 @@
   :data="menus"
   :props="defaultProps"
   @node-click="handleNodeClick"
+  show-checkbox
+  node-key="catId"
+  :default-expanded-keys="expandedKey"
   >
   <span class="custom-tree-node" slot-scope="{ node, data }">
     <span>{{ node.label }}</span>
@@ -54,7 +57,31 @@ export default {
 
     },
     remove (node, data) {
-
+      var ids = [data.catId]
+      this.$confirm(`是否删除【${data.name}】当前菜单?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http({
+          url: this.$http.adornUrl('/product/category/delete'),
+          method: 'delete',
+          data: this.$http.adornData(ids, false)
+        }).then(({data}) => {
+          this.$message({
+            type: 'success',
+            message: '菜单删除成功!'
+          })
+          // 刷新出新的菜单
+          this.getMenus()
+          this.expandedKey = [node.parent.data.catId]
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      })
     }
   },
 // 生命周期 - 创建完成(可以访问当前 this 实例)
