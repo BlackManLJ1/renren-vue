@@ -6,6 +6,7 @@
      inactive-text="关闭拖拽">
     </el-switch>
     <el-button @click="batchSave" v-if="draggable">批量保存</el-button>
+    <el-button type="danger" @click="batchDelete" >批量删除</el-button>
     <el-tree
     @node-drop="handleDrop"
     :data="menus"
@@ -93,6 +94,32 @@ export default {
         this.maxLevel = 0
       })
     },
+    batchDelete () {
+      let checkNodes = this.$refs.tree.getCheckedNodes();
+      let ids = [];
+      let names = [];
+      for (let i = 0; checkNodes.length; i++) {
+        ids.push(checkNodes[i].cateId);
+        names.push(checkNodes[i].name);
+      }
+      this.$confirm(`是否删除[${names}]菜单?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then( () => {
+        this.$http({
+          url: this.$http.adornUrl('/product/category/delete'),
+          method: "post",
+          data: this.$http.adornData(ids, false)
+        }).then( () => {
+          this.$message({
+            message: "批量删除成功",
+            type: "success"
+          });
+          this.getMenus();
+        });
+      }).catch(); 
+    },
     handleDrop (draggingNode, dropNode, dropType, ev) {
       // 1.当前节点最新的父节点
       let pCid = 0
@@ -108,7 +135,7 @@ export default {
       // 2.当前拖拽节点的最新顺序
       for (let i = 0; i < siblings.length; i++) {
         if (siblings[i].data.catId == draggingNode.data.catId) {
-          let catLevel = draggingNode.level 
+          let catLevel = draggingNode.cateLevel
           if (siblings[i].level != draggingNode.level) {
             catLevel = siblings[i].level 
             this.updateChildNodeLevel(siblings[i])
